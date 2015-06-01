@@ -2,22 +2,9 @@
 import sys
 import re 
 import common
-from cStringIO import StringIO
 import execution
 import copy
-import inspect
-import logging
-import os
-import subprocess
-
-LOG_FILENAME = 'log.out'
-#logging.basicConfig(filename=LOG_FILENAME,
-#                    level=logging.DEBUG,
-#                    )
-log=logging
-
-def get_lineno():
-    return inspect.currentframe().f_back.f_lineno
+from common import log
 
 glb_func={}
 glb_lines={}
@@ -168,36 +155,16 @@ def parse_line(line):
     return line_desc
                 
 
-def log_setup():
-    i=0
-    if 'bse_last' in os.listdir("./"):
-        subprocess.call(["rm","-rf","bse_last"])
-        while(1):
-            if 'bse_out_'+str(i) in os.listdir("./"):
-                i=i+1
-            else:
-                break
-    subprocess.call(["mkdir","bse_out_"+str(i)])
-    subprocess.call(["ln","-s","bse_out_"+str(i),"bse_last"])
-    LOG_PATH = "./"+"bse_last"
-    LOG_FILENAME="bse.log"
-    logging.basicConfig(filename=LOG_FILENAME,pathname=LOG_PATH,
-                    level=logging.DEBUG,
-                    )
-    logging.info("Starting Log")
-
-def log_close():
-    subprocess.call(["mv","bse.log","./bse_last"])
             
 def main():
     #Call like this: python parse.py <filepath/filename> <lineno_to _start_from>
-    log_setup()
+    common.log_setup()
     [infile,start_line]=cmd_args_parse()
     ifb=open_input_file(infile)
     parse_file(ifb)
     execution.execution(glb_lines,start_line,glb_func)
     close_file(ifb)
-    log_close()
+    common.log_close()
 
 if __name__ == "__main__":
     main()
